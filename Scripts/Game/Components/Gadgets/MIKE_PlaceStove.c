@@ -11,31 +11,20 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 	// Called when the user attempts to activate the effect (e.g. "use" the item).
 	override bool ActivateEffect(IEntity target, IEntity user, IEntity item, ItemUseParameters animParams = null)
 	{
-		// We no longer care about healing or anim commands, so we can skip
 		if (!user)
 			return false;
+		
 		cookingPlayerComp = MIKE_CookingPlayerManagerComponent.Cast(user.FindComponent(MIKE_CookingPlayerManagerComponent));
-		// We’ll just call our new spawn logic. If it succeeds, mark the item as "used up."
+		
 		if (!cookingPlayerComp){
 			Print("No Cooking Game Mode Component Found!", LogLevel.ERROR);
 			return false;
 		}
 		
+
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		bool didSpawn = cookingPlayerComp.SpawnStoveInFrontOfUser(m_rnStovePrefab);
-		if (!didSpawn)
-			return false;
+		cookingPlayerComp.SpawnStoveInFrontOfUser(m_rnStovePrefab);
+
 		
 
 		ChimeraCharacter character = ChimeraCharacter.Cast(user);
@@ -52,7 +41,6 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 	    // This effectively tells the system "use the item" without playing any real animation.
 	    bool activatedAction = controller.TryUseItemOverrideParams(noAnimParams);
 		super.ActivateEffect(target, user, item, noAnimParams);
-		DeleteItem(user, item);
  	    return activatedAction;
 		
 		
@@ -66,31 +54,7 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void DeleteItem(notnull IEntity user, IEntity item)
-	{
-		// Normally, ApplyEffect is for healing, etc. We'll just skip or do nothing.
-		// If you want the item to be removed from inventory, confirm your base class does so
-		// or handle that here.
-		
-		
-		Print("trying to delete item in hand",LogLevel.NORMAL);
-		
-		if (!item) return;
-
-		// Unlock and delete the item from the world/inventory
-		InventoryItemComponent itemComp = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
-		if (itemComp)
-		{
-			// If the item is "locked" to the user’s hands, unlock it before deleting
-			itemComp.RequestUserLock(user, false);
-		}
-
-		// Remove the entity from the world
-		SCR_EntityHelper.DeleteEntityAndChildren(item);
-		
-		
-		
-	}
+	
 
 
 
