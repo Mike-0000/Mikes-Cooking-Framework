@@ -1,0 +1,7 @@
+SCR_ChimeraCharacter {
+ ID "520EC961A090B1EE"
+ components {
+  MIKE_CookingPlayerManagerComponent "{6443655320CD2888}" {
+  }
+ }
+}

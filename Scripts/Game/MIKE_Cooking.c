@@ -64,27 +64,28 @@ class MIKE_CookingManagerComponent : ScriptComponent
             return;
         }
 
-        accumulatedTime = accumulatedTime + timeSlice;
-
-        if (currentTick == 30)
+  accumulatedTime += timeSlice;
+		
+        if (currentTick == 20)
         {
             currentTick = 0;
 
+			if (m_StoveSim && m_StoveSim.IsStoveActive())
+            {
+                m_StoveSim.UpdateStove(timeSlice);
+            }
             if (m_Simulation && m_Simulation.IsProcessActive())
             {
-                m_Simulation.Update(accumulatedTime);
+                m_Simulation.Update(timeSlice);
             }
-            if (m_StoveSim && m_StoveSim.IsStoveActive())
-            {
-                m_StoveSim.UpdateStove(accumulatedTime);
-            }
+
             
             accumulatedTime = 0.0;
             GetSimulationStatus();
         }
         else
         {
-            currentTick = currentTick + 1;
+            currentTick++;
         }
     }
 
@@ -122,19 +123,19 @@ class MIKE_CookingManagerComponent : ScriptComponent
 
             // Decide which prefab to spawn
             ResourceName finalPrefab = bestMatch.Tier1ItemResult;
-            if (quality <= 94 && quality > 80)
+            if (quality <= 96 && quality > 90)
             {
                 finalPrefab = bestMatch.Tier2ItemResult;
             }
-            else if (quality <= 80 && quality > 70)
+            else if (quality <= 90 && quality > 83)
             {
                 finalPrefab = bestMatch.Tier3ItemResult;
             }
-            else if (quality <= 70 && quality > 60)
+            else if (quality <= 83 && quality > 58)
             {
                 finalPrefab = bestMatch.Tier4ItemResult;
             }
-            else if (quality <= 60 && quality > 30)
+            else if (quality <= 58)
             {
                 finalPrefab = bestMatch.Tier5ItemResult;
             }

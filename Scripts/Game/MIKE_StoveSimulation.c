@@ -30,6 +30,8 @@ class StoveSimulation
         m_bStoveActive = false;
         m_iStoveSetting = 0;
 		ownerEntity = ownerEntity1;
+		soundComp = SoundComponent.Cast(ownerEntity.FindComponent(SoundComponent));
+
 		
     }
     
@@ -37,18 +39,20 @@ class StoveSimulation
     {
 		
 		GameSignal = SignalsManagerComponent.Cast(ownerEntity.FindComponent(SignalsManagerComponent));
-
-		BoilIndex = GameSignal.AddOrFindMPSignal("STOVE_HEAT", 0.1, 0.1, 1.0);
 		soundComp = SoundComponent.Cast(ownerEntity.FindComponent(SoundComponent));
+		if(GameSignal)
+			BoilIndex = GameSignal.AddOrFindMPSignal("STOVE_HEAT", 0.1, 0.1, 1.0);
         m_bStoveActive = true;
-		m_AudioHandle = soundComp.PlayStr("SOUND_BOILING");
+		if(soundComp)
+			m_AudioHandle = soundComp.PlayStr("SOUND_BOILING");
 	
     }
     
     void StopStove()
     {
         m_bStoveActive = false;
-		soundComp.TerminateAll();
+		if(soundComp)
+			soundComp.TerminateAll();
 
     }
     
@@ -80,7 +84,7 @@ class StoveSimulation
     {
         if (!m_bStoveActive)
             return;
-        
+
         // 1. Determine target heat from the stove setting
         float targetHeat = 70 + ((m_iStoveSetting / 10.0) * m_fMaxHeat);
         if (m_iStoveSetting == 11)  // If you had an "overdrive" check
@@ -153,11 +157,11 @@ class StoveSimulation
             + " | HeatSoak=" + m_fHeatSoak, LogLevel.NORMAL);
     
 		
-		if (m_fCurrentStoveHeat<200){
+		if (m_fCurrentStoveHeat<190){
 			GameSignal.SetSignalValue(BoilIndex, 0);
 		}else{
 
-			GameSignal.SetSignalValue(BoilIndex, (m_fCurrentStoveHeat-199)/300);
+			GameSignal.SetSignalValue(BoilIndex, (m_fCurrentStoveHeat-189)/380);
 			
 		}
 
