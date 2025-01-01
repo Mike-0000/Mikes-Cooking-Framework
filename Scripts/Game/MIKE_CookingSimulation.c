@@ -136,13 +136,18 @@ class ProcessCookingSimulation
         }
 		if (stoveHeat > m_fOptimalHeatMax+40 && recipeName == "Meth"){
 			hitZoneDamageToDo += 25;
-			if(destructionComp.GetHealth() <= 500 && !m_bisDestroyed){
+			if(destructionComp.GetHealth() <= 100 && !m_bisDestroyed){
 //				Print("GOING FOR EXPLOSION", LogLevel.WARNING);
 				explosiveComp.SetFuzeTime(3,false);
 				explosiveComp.ArmWithTimedFuze(false);
 				m_bisDestroyed = true;
+				m_bActive = false;
 				destructionComp.InitDestruction();
-				destructionComp.SetHitZoneHealth(0, false);
+				GetGame().GetCallqueue().CallLater(destructionComp.SetHitZoneHealth, 2999, false, 0, false); 
+				GetGame().GetCallqueue().CallLater(m_StoveSim.StopStove, 2999, false); 
+
+
+
 			}
 			destructionComp.SetHitZoneDamage(hitZoneDamageToDo);
 		}
@@ -181,14 +186,14 @@ class ProcessCookingSimulation
         // Use your existing final quality math
         int quality = 100;
         
-        if (m_fRawRisk > 0.0)
-            quality -= (int)(m_fRawRisk * 50);
+        if (m_fRawRisk > 0.05)
+            quality -= (int)(m_fRawRisk * 200);
 
-        if (m_fBurnRisk > 0.0)
-            quality -= (int)(m_fBurnRisk * 50);
+        if (m_fBurnRisk > 0.05)
+            quality -= (int)(m_fBurnRisk * 200);
 
-        if (m_overCookedRisk > 0.05)
-            quality -= (int)(m_overCookedRisk * 100);
+        if (m_overCookedRisk > 0.1)
+            quality -= (int)(m_overCookedRisk * 250);
 
         if (quality < 0)
             quality = 0;
@@ -201,23 +206,8 @@ class ProcessCookingSimulation
         }
 		
 		
-		
-//		IEntity entity = new IEntity(EntitySrc);
-//		ResourceName test = new ResourceName();
-		
-//		storageSlot.AttachEntity();
-        // Create your final item name
-        if (quality == 100){
-            m_sOutputItem = "Perfect_" + m_sItemName;
-        }else if (quality >= 70){
-            m_sOutputItem = "Good_" + m_sItemName;
-        }else if (quality >= 40){
-            m_sOutputItem = "Average_" + m_sItemName;
-        }else{
-            m_sOutputItem = "Bad_" + m_sItemName;
-		}
+
         m_iQualityScore = quality;
-        Print("[CookingSimulation] Process finalized. Outcome: " + m_sOutputItem + " (Quality: " + quality + ")", LogLevel.NORMAL);
     }
 	
 

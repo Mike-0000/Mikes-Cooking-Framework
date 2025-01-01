@@ -1,0 +1,421 @@
+GenericEntity : "{9E6BB1D7AA5D0FEB}Prefabs/Props/Furniture/Stove_01.et" {
+ ID "6093E737D2748756"
+ components {
+  SignalsManagerComponent "{64430DC2973688BC}" {
+   Enabled 1
+   components {
+    SignalsComponent "{64430DC2973688B5}" {
+     Enabled 0
+     Filenames "{E6BD7762F7151296}BoilingSoundSignal.sig"
+    }
+   }
+  }
+  SoundComponent "{64430DC29736888C}" {
+   Enabled 1
+   Filenames {
+    "{02050BE62AC4860A}BoilingSound.acp" "{E4EF3755472EC669}Sounds/Particles/Logistics/Explosion/TNT/Particles_Explosions_TNT_Large.acp"
+   }
+   OnFrameUpdate 1
+   ScriptCallbacks 1
+   IncludeInactive 1
+   SoundPoints {
+    SoundPointInfo Core {
+     Offset -0.2263 1.2621 0.4643
+    }
+   }
+  }
+  BaseTriggerComponent "{64430DC297368880}" {
+   Enabled 0
+   PROJECTILE_EFFECTS {
+    AIExplosionEffect "{64430DC29736889F}" {
+     Enabled 0
+    }
+   }
+   TRIGGER_ALIVE 1
+   TriggerOffset 3.1
+   ArmingTime 4.7
+  }
+  InventoryItemComponent "{64430DC29736889A}" {
+   Enabled 0
+   Attributes SCR_ItemAttributeCollection "{64430DC297368898}" {
+    ItemDisplayName UIInfo "{64430DC297368899}" {
+     Name "Mike's Cooking Stove"
+    }
+    ItemPhysAttributes ItemPhysicalAttributes "{64430DC297368894}" {
+     Weight 0.01
+     DimensionScaler 0.1
+    }
+    CommonItemType "MINE"
+    m_Size SLOT_1x1
+    m_eQuickSlotSize SLOT_1x1
+    m_SlotType SLOT_HAND
+   }
+  }
+  MIKE_CookingManagerComponent "{64430DC297368890}" {
+   m_AudioSourceConfiguration SCR_AudioSourceConfiguration "{64430DC29736886B}" {
+    m_sSoundProject "{02050BE62AC4860A}BoilingSound.acp"
+    m_sSoundEventName "SOUND_BOILING"
+    m_eFlags FinishWhenEntityDestroyed
+   }
+   m_vSoundOffset 0 1 0
+  }
+  MIKE_RecipeManagerComponent "{64430DC297368866}" {
+   RecipeConfig MIKE_CfgRecipe "{632C8326FB9A06AB}" : "{71ED3EDF60362787}Configs/MIKE_RecipeConfigs.conf" {
+    weightedRecipes {
+     WeightedRecipe "{64430DC297368862}" {
+      optimalHeatMin 100
+      optimalHeatMax 250
+     }
+    }
+   }
+  }
+  MeshObject "{5872F0EB7FA40561}" {
+   Object "{70E5C37F7EF4E040}Assets/OvenItem/Stove.xob"
+  }
+  RigidBody "{5872F0EB7DFB5A9D}" {
+   ResponseIndex "HugeDestructible"
+  }
+  SCR_DestructionMultiPhaseComponent "{5624A88D86EFE8BA}" {
+   Enabled 1
+   "Additional hit zones" {
+    SCR_FuelHitZone Default {
+     ColliderNames {
+      "UBX_Stove_01_ metal"
+     }
+     HZDefault 0
+     MaxHealth 2000
+     CriticalDamage 0.05
+     "Explosive multiplier" 55
+     m_SecondaryExplosionPoint PointInfo "{64430DC29736884E}" {
+      Offset -0.3498 0.4206 0.3343
+     }
+     m_pDestructionHandler SCR_DestructionBaseHandler "{64430DC29736884D}" {
+      m_bAllowHideWreck 1
+      m_bDeleteAfterParentDestroyed 1
+     }
+    }
+   }
+   m_SecondaryExplosions SCR_SecondaryExplosions "{64430DC297368849}" {
+    m_aSecondaryExplosionTypes {
+     SCR_SecondaryExplosionType "{64430DC297368847}" {
+      m_eSecondaryExplosionType FUEL
+      m_eResourceType SUPPLIES
+      m_aSecondaryExplosions {
+       SCR_SecondaryExplosion "{64430DC297368842}" {
+        m_fMinValue 25
+        m_eSecondaryExplosionScale MASSIVE
+        m_sSecondaryExplosionPrefab "{8BC4C95E01FC9BD3}Prefabs/Weapons/Warheads/Explosions/Explosion_Fuel_Large.et"
+       }
+      }
+     }
+    }
+   }
+   m_SecondaryFires SCR_SecondaryExplosions "{64430DC29736885F}" {
+    m_aSecondaryExplosionTypes {
+     SCR_SecondaryExplosionType "{64430DC29736885C}" {
+      m_eSecondaryExplosionType AMMO
+      m_eResourceType SUPPLIES
+      m_aSecondaryExplosions {
+       SCR_SecondaryExplosion "{64430DC29736193A}" {
+        m_fMinValue 0
+        m_eSecondaryExplosionScale MASSIVE
+        m_sSecondaryExplosionPrefab "{2B494C6AC3A56452}Prefabs/Weapons/Warheads/Fires/Fire_Ammo_Medium.et"
+       }
+      }
+     }
+    }
+   }
+   m_bPassDamageToChildren 1
+   m_bDestroyParentWhenDestroyed 1
+   m_bDeleteAfterFinalPhase 1
+  }
+  SCR_EditableEntityComponent "{58AAE805B43494BC}" : "{996046FE206C699A}Prefabs/Editor/Components/Default_SCR_EditableEntityComponent.ct" {
+   Enabled 1
+   m_UIInfo SCR_EditableEntityUIInfo "{5298E609432D192D}" {
+    Name "Mikes Cooking Stove"
+    m_Image "{961029F23B483C32}UI/Textures/EditorPreviews/Auto/Props/Furniture/E_Stove_01.edds"
+    m_aAuthoredLabels {
+    }
+    m_aAutoLabels {
+     1 121
+    }
+   }
+   m_EntityInteraction SCR_EditableEntityInteraction "{64430DC297361933}" {
+   }
+   m_Flags 131841
+  }
+  SCR_ExplosiveChargeComponent "{64430DC297361935}" {
+   Enabled 1
+  }
+  SCR_ExplosiveChargeInventoryItemComponent "{64430DC297361936}" {
+   Enabled 0
+   Attributes SCR_ItemAttributeCollection "{64430DC29736194D}" {
+    ItemDisplayName WeaponUIInfo "{64430DC29736194E}" {
+     Name "#AR-Weapon_M112DemoCharge_Name"
+     Description "#AR-Weapon_M112DemoCharge_Description"
+    }
+    ItemPhysAttributes ItemPhysicalAttributes "{64430DC29736194F}" {
+     Weight 0.57
+     SizeSetupStrategy Manual
+     ItemDimensions 10 10 10
+     ItemVolume 400
+     DimensionScaler 1
+     RestingAdditiveRotationLS 0 0 0
+     RestingAdditiveOffsetLS 0 0 0
+    }
+    ItemAnimationAttributes ItemAnimationAttributes "{64430DC297361942}" {
+     IkSettings {
+      ItemIKSettings "{64430DC297361944}" {
+       MovementSpeedRange 0 3
+      }
+      ItemIKSettings "{64430DC297361946}" {
+       Lowered 1
+       InAds 0
+       OutAds 0
+       MovementSpeedRange 0 0
+      }
+      ItemIKSettings "{64430DC297361958}" {
+       Jumping 1
+       InAds 0
+       OutAds 0
+       MovementSpeedRange 0 0
+      }
+      ItemIKSettings "{64430DC297361959}" {
+       ProneTurn 1
+       MovementSpeedRange 0 0
+       IkSettingsStand 4
+      }
+     }
+     AnimationInstance "{4FCBEA45CAEBC9C0}anims/workspaces/player/player_main_1h.asi"
+     AnimationIKPose "{ADA8287EEE81F47D}Assets/Weapons/Explosives/DemoBlock_M112/anims/p_M112_IK.anm"
+    }
+    CustomAttributes {
+     PreviewRenderAttributes "{64430DC297361950}" {
+      CameraPreset Top
+      CameraOrbitAngles -25 -30 0
+      CameraOffset 0.025 0 0
+      FOV 60
+      AspectRatio 1
+      LodModel 1
+     }
+     CharacterModifierAttributes "{64430DC297361952}" {
+     }
+    }
+    CommonItemType "EXPLOSIVE_CHARGE"
+    m_Size SLOT_1x1
+    m_SlotType SLOT_BACKPACK
+   }
+  }
+  SCR_ExplosiveTriggerComponent "{64430DC297361955}" {
+   Enabled 1
+   PROJECTILE_EFFECTS {
+    SpawnDecalEffect "{64430DC297361957}" {
+     Scale 10
+     Material "{D73EF1B0C42AD52E}Assets/Decals/Logistics/Data/Logistics_Explosion_Decal_Large.emat"
+    }
+    ExplosionDamageContainer "{64430DC29736196B}" {
+     TriggerOnce 1
+     ExplosionEffects {
+      BaseExplosionDamage "{64430DC29736196D}" {
+       DamageValue 2
+       DamageDistance 10
+       ExplosionEffectSpeed 500
+       DamageFalloffCurve {
+        0 1 0.168 0.027
+       }
+       DamageEffect {
+        SCR_ExplosionDamageEffect "{64430DC29736196F}" {
+        }
+       }
+       ExplosionDamagePower 1
+       ExplosionRangePower 0.3
+      }
+      BaseExplosionDamage "{64430DC297361961}" {
+       DamageValue 2
+       DamageDistance 10
+       ExplosionEffectSpeed 500
+       DamageFalloffCurve {
+        0 1 0.168 0.027
+       }
+       ExplosionDamagePower 1
+       ExplosionRangePower 0.3
+      }
+      BaseExplosionDamage "{64430DC297361963}" {
+       DamageValue 2
+       DamageDistance 10
+       ExplosionEffectSpeed 500
+       DamageFalloffCurve {
+        0 1 0.168 0.027
+       }
+       ExplosionDamagePower 1
+       ExplosionRangePower 0.3
+      }
+      ExplosionImpulseEffect "{64430DC297361966}" {
+       DamageValue 2
+       DamageDistance 10
+       ExplosionEffectSpeed 500
+       DamageFalloffCurve {
+        0 1 0.168 0.027
+       }
+       ExplosionDamagePower 1
+       ExplosionRangePower 0.3
+       ExplosionImpulseMultiplier 666.6
+      }
+     }
+     ChargeWeight 480000
+     LayerPreset "Projectile"
+    }
+    SpawnParticleEffect "{64430DC297361978}" {
+     UseFrameEvent 1
+     ParticleEffect "{79ED2EDBC38185AB}Particles/Logistics/Explosion/TNT/Explosion_TNT_Large.ptc"
+     SoundEvent "SOUND_EXPLOSION"
+    }
+    AIExplosionEffect "{64430DC29736197B}" {
+     Enabled 0
+    }
+   }
+   DELETE_ON_TRIGGER 0
+   TRIGGER_ALIVE 1
+   TriggerOffset 0
+   ArmingTime 0
+   SafetyDistance 0.1
+   m_bLive 1
+  }
+  SCR_PlaceableItemComponent "{64430DC29736197D}" {
+   Enabled 1
+   m_eMeasurementMethod FROM_ORIGIN
+   m_sPreviewObject ""
+   m_fMaxPlacementDistance 2
+   m_ePlacementType XYZ
+  }
+  SCR_PreviewEntityComponent "{58AAE805B43B3A88}" : "{6CADA7A88A6265FD}Prefabs/Editor/Components/PreviewEntityComponentClass.ct" {
+   Enabled 1
+   m_bRuntime 0
+   m_PreviewPrefab "{9B5C23A08E40BEF6}PrefabsEditable/MethStove.et"
+   m_aEntries {
+    SCR_BasePreviewEntry "{64430DC297361973}" {
+     m_iParentID -1
+     m_Mesh "{2D5E216856A3D748}Assets/Props/Furniture/Stove_01/Stove_01.xob"
+     m_Flags 0
+     m_Shape MESH
+     m_iPivotID ""
+     m_vScale 1 1 1
+     m_vPosition 0 0 0
+     m_vAngles 0 0 0
+    }
+   }
+  }
+  SCR_UniversalInventoryStorageComponent "{64430DC297361E82}" {
+   Enabled 1
+   Attributes SCR_ItemAttributeCollection "{64430DC297361E83}" {
+    ItemDisplayName UIInfo "{64430DC297361E84}" {
+     Name "Meth Lab"
+    }
+    ItemPhysAttributes ItemPhysicalAttributes "{64430DC297361E85}" {
+     Weight 0.01
+     SizeSetupStrategy Manual
+     ItemDimensions 20 20 20
+     ItemVolume 0.1
+    }
+    CustomAttributes {
+     PreviewRenderAttributes "{64430DC297361E87}" {
+      CameraDistanceToItem 2
+     }
+    }
+    m_Size SLOT_2x1
+    m_eQuickSlotSize SLOT_1x1
+    m_bStackable 0
+   }
+   UseCapacityCoefficient 0
+   MaxCumulativeVolume 100000
+   SaveInLoadout 0
+   m_fMaxWeight 10000
+  }
+  SignalsComponent "{64430DC297361E9A}" {
+   Enabled 0
+   Filenames "{E6BD7762F7151296}BoilingSoundSignal.sig"
+  }
+  ActionsManagerComponent "{64430DC297361E9B}" {
+   Enabled 1
+   ActionContexts {
+    UserActionContext "{64430DC297361E9D}" {
+     ContextName "Start"
+     Position PointInfo "{64430DC297361E9E}" {
+      Offset -0.3244 1.5008 0.5579
+     }
+     Radius 1
+    }
+    UserActionContext "{64430DC297361E9F}" {
+     ContextName "raiseTemp"
+     Position PointInfo "{64430DC297361E90}" {
+      Offset -0.8464 0.855 0.8095
+     }
+    }
+    UserActionContext "{64430DC297361E91}" {
+     ContextName "lower"
+     Position PointInfo "{64430DC297361E92}" {
+      Offset -0.2943 0.8562 0.8088
+     }
+    }
+    UserActionContext "{64430DC297361E93}" {
+     ContextName "Finish"
+     Position PointInfo "{64430DC297361E94}" {
+      Offset -0.1821 0.3968 0.8089
+     }
+    }
+    UserActionContext "{64430DC297361E95}" {
+     ContextName "stoveStart"
+     Position PointInfo "{64430DC297361E96}" {
+      Offset -0.5678 1.0569 0.6152
+     }
+    }
+    UserActionContext "{64430DC297361E97}" {
+     ContextName "StopStove"
+     Position PointInfo "{64430DC297362E4B}" {
+      Offset -0.9722 0.2995 0.7827
+     }
+    }
+   }
+   additionalActions {
+    MIKE_CookingRaiseTempUserAction "{64430DC297362E76}" {
+     ParentContextList {
+      "raiseTemp"
+     }
+    }
+    MIKE_CookingStartCookingUserAction "{64430DC29749FC5F}" {
+     ParentContextList {
+      "Start"
+     }
+    }
+    MIKE_CookingLowerTempUserAction "{64430DC29749FC5E}" {
+     ParentContextList {
+      "lower"
+     }
+    }
+    MIKE_CookingFinalizeUserAction "{64430DC29749FC59}" {
+     ParentContextList {
+      "Finish"
+     }
+    }
+    MIKE_StoveStartUserAction "{64430DC29749FC58}" {
+     ParentContextList {
+      "stoveStart"
+     }
+    }
+    MIKE_StoveStopUserAction "{64430DC29749FC5B}" {
+     ParentContextList {
+      "StopStove"
+     }
+    }
+   }
+  }
+  RplComponent "{5624A88DC2D9928D}" {
+   Enabled 1
+   "Rpl State Override" Runtime
+   "Parent Node From Parent Entity" 0
+  }
+  Hierarchy "{64430DC29749FC55}" {
+   Enabled 1
+  }
+ }
+}

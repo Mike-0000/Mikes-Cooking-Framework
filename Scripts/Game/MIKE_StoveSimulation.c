@@ -37,40 +37,11 @@ class StoveSimulation
     {
 		
 		GameSignal = SignalsManagerComponent.Cast(ownerEntity.FindComponent(SignalsManagerComponent));
-		//soundManagerEntity = GetGame().GetSoundManagerEntity();
 
-		
-//		if (!soundManagerEntity)
-//		{
-//		    Print("SoundManagerEntity is null. Ensure it's correctly initialized in the game.", LogLevel.ERROR);
-//		    return;
-//		}
-		
-		
-		
 		BoilIndex = GameSignal.AddOrFindMPSignal("STOVE_HEAT", 0.1, 0.1, 1.0);
-		//soundComp = new SoundComponent();
 		soundComp = SoundComponent.Cast(ownerEntity.FindComponent(SoundComponent));
         m_bStoveActive = true;
 		m_AudioHandle = soundComp.PlayStr("SOUND_BOILING");
-		
-		
-		
-//		if (!m_AudioSourceConfiguration || !m_AudioSourceConfiguration.IsValid())
-//		{
-//		    Print("AudioSourceConfiguration is invalid. Ensure it's set up correctly.", LogLevel.ERROR);
-//		    return;
-//		}
-		
-//		audioSource1 = new SCR_AudioSource(ownerEntity, m_AudioSourceConfiguration, 10);
-//		//audioSource = soundManagerEntity.CreateAudioSource(ownerEntity, m_AudioSourceConfiguration);
-//		
-//		    vector mat[4];
-//            ownerEntity.GetTransform(mat);
-//            mat[3] = ownerEntity.CoordToParent(m_vSoundOffset);
-//	
-//            soundManagerEntity.PlayAudioSource(audioSource1, mat);
-//            m_AudioHandle = audioSource1.m_AudioHandle;
 	
     }
     
@@ -78,8 +49,7 @@ class StoveSimulation
     {
         m_bStoveActive = false;
 		soundComp.TerminateAll();
-//		AudioSystem.TerminateSound(m_AudioHandle);
-//		m_AudioHandle = AudioHandle.Invalid;
+
     }
     
     void SetStoveSetting(int setting)

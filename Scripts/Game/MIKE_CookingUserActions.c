@@ -100,169 +100,6 @@ class MIKE_CookingLowerTempUserAction : ScriptedUserAction
 }
 
 
-//class MIKE_CookingStartCookingUserAction : ScriptedUserAction
-//{
-//	MIKE_CookingManagerComponent cookingComp;
-//	SCR_ItemAttributeCollection m_ItemAttributes;
-////	int counterLimiter = 0;
-//	
-//	
-//	override void Init(IEntity pOwnerEntity, GenericComponent pManagerComponent){
-//		cookingComp =  MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
-//
-//	}
-//	
-//	// Determines the name displayed for the action when the player looks at the entity
-//	override bool GetActionNameScript(out string outName)
-//	{
-//		
-//			outName = "Start Cooking!";
-//		return true;
-//	}
-//
-//	// Checks if the action can be performed. Could add conditions like tool requirements.
-//	override bool CanBeShownScript(IEntity user)
-//	{
-//		if(cookingComp.ProcessRunning)
-//			return false;
-//		return true;
-//	}
-//
-//	// Called when the player performs the action.
-//	override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
-//	{
-//		array <InventoryItemComponent> ItemsArray = new array <InventoryItemComponent>;
-//		SCR_UniversalInventoryStorageComponent StorageComp = SCR_UniversalInventoryStorageComponent.Cast(pOwnerEntity.FindComponent( SCR_UniversalInventoryStorageComponent ));
-//		if (!StorageComp)
-//			Print("No Storage Comp found on Mike's Cooking Device", LogLevel.NORMAL);
-//		//m_ItemAttributes = SCR_ItemAttributeCollection.Cast(StorageComp.GetAttributes());
-//		//StorageComp.GetAll(ItemsArray);
-//		StorageComp.GetOwnedItems(ItemsArray);
-////		int ItemSize = ItemsArray.Count();
-////		foreach (InventoryItemComponent item : ItemsArray){
-////			UIInfo itemName = item.GetUIInfo();
-////			
-////			Print(itemName.GetName(), LogLevel.NORMAL);
-////		}
-//
-//		//Print("ItemsArray = "+ItemSize+" "+ItemsArray, LogLevel.NORMAL);
-//		// Find the cooking manager component on the entity we are interacting with
-//		
-//		cookingComp = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
-//		if (!cookingComp)
-//		{
-//			Print("[MIKE_CookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
-//			return;
-//		}
-//		//ProcessCookingSimulation m_Simulation = cookingComp.GetSimulation();	
-//		
-//		if(cookingComp.ProcessRunning){
-//			Print("Cooking Component already has a running Simulation!", LogLevel.WARNING);
-//			return;
-//		}
-//			
-//		// Attempt to start the cooking process
-//		
-//		cookingComp.Server_StartProcess("Meth", 50, 100, 800);
-//		Print("[MIKE_CookingUserAction] Requested server to start cooking process for " , LogLevel.NORMAL);
-//	}
-//
-//}
-
-
-
-
-//class MIKE_CookingStartCookingUserAction : ScriptedUserAction
-//{
-//    MIKE_CookingManagerComponent cookingComp;
-//    RecipeManager recipeManager; // Add RecipeManager reference
-//
-//    override void Init(IEntity pOwnerEntity, GenericComponent pManagerComponent)
-//    {
-//        cookingComp = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
-//        if (!cookingComp)
-//        {
-//            Print("[MIKE_CookingStartCookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
-//            return;
-//        }
-//
-//        // Initialize RecipeManager
-//        recipeManager = new RecipeManager();
-//    }
-//
-//    // Determines the name displayed for the action when the player looks at the entity
-//    override bool GetActionNameScript(out string outName)
-//    {
-//        if (cookingComp.ProcessRunning)
-//        {
-//            outName = "Cooking in Progress...";
-//        }
-//        else
-//        {
-//            // Attempt to find the best matching recipe
-//            array<InventoryItemComponent> items = GetOwnedItems();
-//            float matchScore;
-//            WeightedRecipe bestRecipe = recipeManager.FindBestMatch(items, matchScore);
-//
-//            if (bestRecipe && matchScore > 0.3) // Threshold can be adjusted
-//            {
-//                outName = "Start Cooking: " + bestRecipe.recipeName + " (Match: " + Math.Round(matchScore * 100, 0) + "%)";
-//            }
-//            else
-//            {
-//                outName = "Start Cooking (No Suitable Recipe)";
-//            }
-//        }
-//        return true;
-//    }
-//
-//    // Checks if the action can be performed. Could add conditions like tool requirements.
-//    override bool CanBeShownScript(IEntity user)
-//    {
-//        if (!cookingComp.ProcessRunning)
-//        {
-//            array<InventoryItemComponent> items = GetOwnedItems();
-//            float matchScore;
-//            WeightedRecipe bestRecipe = recipeManager.FindBestMatch(items, matchScore);
-//            return bestRecipe != null && matchScore > 0.3; // Ensure there's a valid recipe match
-//        }
-//        return false;
-//    }
-//
-//    // Called when the player performs the action.
-//    override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
-//    {
-//        array<InventoryItemComponent> items = GetOwnedItems();
-//        float matchScore;
-//        WeightedRecipe bestRecipe = recipeManager.FindBestMatch(items, matchScore);
-//
-//        if (bestRecipe && matchScore > 0.3) // Threshold can be adjusted
-//        {
-//            // Start the cooking process with the best matching recipe
-//            cookingComp.Server_StartProcess(bestRecipe.recipeName, bestRecipe.optimalTime, bestRecipe.optimalHeatMin, bestRecipe.optimalHeatMax, matchScore);
-//            Print("Cooking started with recipe: " + bestRecipe.recipeName + " (Score: " + Math.Round(matchScore * 100, 0) + "%)", LogLevel.NORMAL);
-//        }
-//        else
-//        {
-//            Print("No suitable recipe match found.", LogLevel.WARNING);
-//        }
-//    }
-//
-//    // Helper method to get owned items from storage component
-//    array<InventoryItemComponent> GetOwnedItems()
-//    {
-//        array<InventoryItemComponent> ItemsArray = new array<InventoryItemComponent>();
-//        SCR_UniversalInventoryStorageComponent StorageComp = SCR_UniversalInventoryStorageComponent.Cast(cookingComp.GetOwner().FindComponent(SCR_UniversalInventoryStorageComponent));
-//        if (!StorageComp)
-//        {
-//            Print("No Storage Comp found on Cooking Device", LogLevel.NORMAL);
-//            return ItemsArray;
-//        }
-//        StorageComp.GetOwnedItems(ItemsArray);
-//        return ItemsArray;
-//    }
-//}
-
 class MIKE_CookingStartCookingUserAction : ScriptedUserAction
 {
 	SignalsManagerComponent GameSignal;
@@ -423,3 +260,61 @@ class MIKE_StoveStartUserAction : ScriptedUserAction
         Print("[MIKE_StoveStartUserAction] Stove has been started.", LogLevel.NORMAL);
     }
 }
+
+
+
+
+class MIKE_StoveStopUserAction : ScriptedUserAction
+{
+    MIKE_CookingManagerComponent cookingManager;
+
+    override void Init(IEntity pOwnerEntity, GenericComponent pManagerComponent)
+    {
+        cookingManager = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
+        if (!cookingManager)
+        {
+            Print("[MIKE_StoveStartUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.ERROR);
+        }
+    }
+
+    // Determines the name displayed for the action when the player looks at the entity
+    override bool GetActionNameScript(out string outName)
+    {
+        if (cookingManager && cookingManager.m_StoveSim && cookingManager.m_StoveSim.IsStoveActive())
+        {
+            outName = "Stove is Off";
+            return false; // Don't show the action if the stove is already on
+        }
+        else
+        {
+            outName = "Stop Stove";
+            return true;
+        }
+    }
+
+    // Checks if the action can be performed. Only show if the stove is not active.
+    override bool CanBeShownScript(IEntity user)
+    {
+        if (!cookingManager)
+            return false;
+
+        if (cookingManager.m_StoveSim && cookingManager.m_StoveSim.IsStoveActive() && !cookingManager.m_Simulation.IsProcessActive())
+            return true;
+
+        return false;
+    }
+
+    // Called when the player performs the action.
+    override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
+    {
+        if (!cookingManager || !cookingManager.m_StoveSim)
+        {
+            Print("[MIKE_StoveStartUserAction] Cooking Manager or Stove Simulation not found.", LogLevel.ERROR);
+            return;
+        }
+
+        cookingManager.m_StoveSim.StopStove();
+        Print("[MIKE_StoveStartUserAction] Stove has been stopped.", LogLevel.NORMAL);
+    }
+}
+
