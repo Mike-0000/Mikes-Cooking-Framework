@@ -1,10 +1,14 @@
 class ProcessCookingSimulation
 {
     // Cooking-specific fields
+	[RplProp()]
     private bool   m_bActive;
+	[RplProp()]
     private bool   m_bHasProcess;
+	[RplProp()]
     private bool   m_bProcessFinalized;
     
+	
     private float  m_fRawRisk;
     private float  m_fBurnRisk;
     private float  m_overCookedRisk;
@@ -14,6 +18,7 @@ class ProcessCookingSimulation
     private float  m_fOptimalHeatMax;
     private string recipeName;
     private float  m_fCurrentTime;
+	[RplProp()]
     private float  m_fHeatSum;
     private float  m_fHeatSamples;
 	bool  m_bisDestroyed;
@@ -93,7 +98,7 @@ class ProcessCookingSimulation
 			
 			return;
 		}
-        if (!m_bActive || !m_bHasProcess)
+        if (!m_bActive || !m_bHasProcess || !m_StoveSim)
             return;
         
         // 1. Increase elapsed time
@@ -101,8 +106,10 @@ class ProcessCookingSimulation
         
         // 2. Pull the stove’s current heat
         float stoveHeat = 0.0;
-        if (m_StoveSim)
+        if (m_StoveSim){
             stoveHeat = m_StoveSim.GetCurrentStoveHeat();
+			m_StoveSim.ResetIdleTimer();
+		}
 		 Print("Stove Heat: " + stoveHeat, LogLevel.NORMAL);
 
         // 3. Record it for averaging (unchanged)
@@ -134,15 +141,18 @@ class ProcessCookingSimulation
                     m_fBurnRisk = 1.0;
             }
         }
+		
+		// METH LAB DESTRUCTION LOGIC
+		
 		if (stoveHeat > m_fOptimalHeatMax+40 && recipeName == "Meth"){
-			hitZoneDamageToDo += 25;
-			if(destructionComp.GetHealth() <= 100 && !m_bisDestroyed){
+			hitZoneDamageToDo += 200;
+			if(destructionComp.GetHealth() <= 500 && !m_bisDestroyed){
 //				Print("GOING FOR EXPLOSION", LogLevel.WARNING);
 				explosiveComp.SetFuzeTime(3,false);
 				explosiveComp.ArmWithTimedFuze(false);
 				m_bisDestroyed = true;
 				m_bActive = false;
-				destructionComp.InitDestruction();
+				GetGame().GetCallqueue().CallLater(destructionComp.InitDestruction, 2999, false);
 				GetGame().GetCallqueue().CallLater(destructionComp.SetHitZoneHealth, 2999, false, 0, false); 
 				GetGame().GetCallqueue().CallLater(m_StoveSim.StopStove, 2999, false); 
 

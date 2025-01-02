@@ -64,7 +64,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
             return;
         }
 
-  accumulatedTime += timeSlice;
+  		accumulatedTime += timeSlice;
 		
         if (currentTick == 20)
         {
@@ -72,11 +72,11 @@ class MIKE_CookingManagerComponent : ScriptComponent
 
 			if (m_StoveSim && m_StoveSim.IsStoveActive())
             {
-                m_StoveSim.UpdateStove(timeSlice);
+                m_StoveSim.UpdateStove(accumulatedTime, accumulatedTime);
             }
             if (m_Simulation && m_Simulation.IsProcessActive())
             {
-                m_Simulation.Update(timeSlice);
+                m_Simulation.Update(accumulatedTime);
             }
 
             

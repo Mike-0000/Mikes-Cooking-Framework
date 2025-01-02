@@ -1,13 +1,16 @@
 class StoveSimulation
 {
     // Stove-specific fields
+	[RplProp()]
     private bool   m_bStoveActive;
+	[RplProp()]
     private int    m_iStoveSetting;         // Allowed range 0–10
+	[RplProp()]
     private float  m_fCurrentStoveHeat = 70.0;
     private float  m_fHeatSoak = 0.0;
     private int BoilIndex;
     // Constants (same as before)
-    private float  m_fThermalInertia      = 10.0;
+    private float  m_fThermalInertia      = 60.0;
     private float  m_fCoolingRate         = 0.02;
     private float  m_fAmbientTemperature  = 70.0;
 	IEntity ownerEntity;
@@ -20,6 +23,11 @@ class StoveSimulation
 	private vector m_vSoundOffset;
 	ref SCR_AudioSource audioSource1;
 	
+	float m_fTimeSinceLastInteraction = 0.0;  // Time since last stove toggle
+	
+    private float m_fIdleTimeout = 10.0;             // Idle timeout duration (seconds)
+	
+   // ProcessCookingSimulation m_Simulation;           // Reference to cooking simulation
 
 
 	SoundComponent soundComp;
@@ -40,6 +48,7 @@ class StoveSimulation
 		
 		GameSignal = SignalsManagerComponent.Cast(ownerEntity.FindComponent(SignalsManagerComponent));
 		soundComp = SoundComponent.Cast(ownerEntity.FindComponent(SoundComponent));
+		 m_fTimeSinceLastInteraction = 0.0;
 		if(GameSignal)
 			BoilIndex = GameSignal.AddOrFindMPSignal("STOVE_HEAT", 0.1, 0.1, 1.0);
         m_bStoveActive = true;
@@ -63,7 +72,10 @@ class StoveSimulation
         m_iStoveSetting = setting;
         Print("[StoveSimulation] Stove Setting changed to: " + m_iStoveSetting, LogLevel.NORMAL);
     }
-    
+    void ResetIdleTimer()
+    {
+        m_fTimeSinceLastInteraction = 0.0;
+    }
     void AdjustStoveSetting(float value)
     {
         if (!m_bStoveActive)
@@ -80,11 +92,20 @@ class StoveSimulation
     }
     
     // Main stove temperature update (same math as before)
-    void UpdateStove(float deltaTime)
+    void UpdateStove(float deltaTime, float accumulatedTime)
     {
+		if(!Replication.IsServer())
+			return;
         if (!m_bStoveActive)
             return;
-
+			m_fTimeSinceLastInteraction += accumulatedTime;
+			Print("[StoveSimulation] Adding to Inactivity Tracker:" + m_fTimeSinceLastInteraction, LogLevel.NORMAL);
+			if (m_fTimeSinceLastInteraction >= m_fIdleTimeout)
+	        {
+	            StopStove();
+	            Print("[StoveSimulation] Stove stopped due to inactivity.", LogLevel.NORMAL);
+        	}
+		Print("[StoveSimulation] Stove inactivity tracker:" + m_fTimeSinceLastInteraction, LogLevel.NORMAL);
         // 1. Determine target heat from the stove setting
         float targetHeat = 70 + ((m_iStoveSetting / 10.0) * m_fMaxHeat);
         if (m_iStoveSetting == 11)  // If you had an "overdrive" check
@@ -93,7 +114,7 @@ class StoveSimulation
         // 2. Heat soak logic (unchanged)
         if (m_fCurrentStoveHeat > 100.0)
         {
-            m_fHeatSoak += deltaTime * 0.000015 * m_fCurrentStoveHeat;
+            m_fHeatSoak += deltaTime * 0.00005 * m_fCurrentStoveHeat;
             if (m_fHeatSoak > 1.0)
                 m_fHeatSoak = 1.0;
         }
