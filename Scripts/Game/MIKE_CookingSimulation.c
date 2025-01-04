@@ -62,7 +62,7 @@ class ProcessCookingSimulation
 		
         if (m_bActive)
         {
-            Print("[CookingSimulation] Already active; cannot start new process.", LogLevel.WARNING);
+            //Print("[CookingSimulation] Already active; cannot start new process.", LogLevel.WARNING);
             return;
         }
 
@@ -89,7 +89,7 @@ class ProcessCookingSimulation
         m_iQualityScore     = 0;
         m_sOutputItem       = "";
 
-        Print("[CookingSimulation] Process started for item: " + itemName, LogLevel.NORMAL);
+        //Print("[CookingSimulation] Process started for item: " + itemName, LogLevel.NORMAL);
     }
 	int hitZoneDamageToDo = 0;
     void Update(float deltaTime)
@@ -109,7 +109,7 @@ class ProcessCookingSimulation
         if (m_StoveSim){
             stoveHeat = m_StoveSim.GetCurrentStoveHeat();
 		}
-		 Print("Stove Heat: " + stoveHeat, LogLevel.NORMAL);
+		 //Print("Stove Heat: " + stoveHeat, LogLevel.NORMAL);
 
         // 3. Record it for averaging (unchanged)
         m_fHeatSum     += stoveHeat * deltaTime;
@@ -144,9 +144,9 @@ class ProcessCookingSimulation
 		// METH LAB DESTRUCTION LOGIC
 		
 		if (stoveHeat > m_fOptimalHeatMax+40 && recipeName == "Meth"){
-			hitZoneDamageToDo += 200;
-			if(destructionComp.GetHealth() <= 600 && !m_bisDestroyed){
-//				Print("GOING FOR EXPLOSION", LogLevel.WARNING);
+			hitZoneDamageToDo += 400;
+			if(destructionComp.GetHealth() <= 800 && !m_bisDestroyed){
+//				//Print("GOING FOR EXPLOSION", LogLevel.WARNING);
 				explosiveComp.SetFuzeTime(3,false);
 				explosiveComp.ArmWithTimedFuze(false);
 				m_bisDestroyed = true;
@@ -154,7 +154,12 @@ class ProcessCookingSimulation
 				GetGame().GetCallqueue().CallLater(destructionComp.InitDestruction, 2999, false);
 				GetGame().GetCallqueue().CallLater(destructionComp.SetHitZoneHealth, 2999, false, 0, false); 
 				GetGame().GetCallqueue().CallLater(cookingManager.StopSound, 2900, false); 
-
+				cookingManager.isDestroyed = true;
+//				SlotManagerComponent slotManager = SlotManagerComponent.Cast(cookingManager.GetOwner().FindComponent(SlotManagerComponent));
+//				EntitySlotInfo entitySlotInfo = slotManager.GetSlotByName("Pot");
+//				entitySlotInfo.GetAttachedEntity();
+				//SCR_EntityHelper.DeleteEntityAndChildren(cookingManager.GetOwner());
+				GetGame().GetCallqueue().CallLater(SCR_EntityHelper.DeleteEntityAndChildren, 8000, false, cookingManager.GetOwner()); 
 
 			}
 			destructionComp.SetHitZoneDamage(hitZoneDamageToDo);
@@ -172,19 +177,19 @@ class ProcessCookingSimulation
 		
 //		GameSignal.SetSignalValue(BoilIndex, stoveHeat);
         // Debugging logs
-        Print("[CookingSimulation] stoveHeat=" + stoveHeat
-            + " | RawRisk=" + m_fRawRisk
-            + " | BurnRisk=" + m_fBurnRisk
-            + " | OverCookRisk=" + m_overCookedRisk
-			+ " | HealthPoints=" + destructionComp.GetHealth()
-            + " | Time=" + m_fCurrentTime, LogLevel.NORMAL);
+        //Print("[CookingSimulation] stoveHeat=" + stoveHeat
+//            + " | RawRisk=" + m_fRawRisk
+//            + " | BurnRisk=" + m_fBurnRisk
+//            + " | OverCookRisk=" + m_overCookedRisk
+//			+ " | HealthPoints=" + destructionComp.GetHealth()
+//            + " | Time=" + m_fCurrentTime, LogLevel.NORMAL);
     }
 
     void FinalizeProcess()
     {
         if (!m_bActive || !m_bHasProcess)
         {
-            Print("[CookingSimulation] No active process to finalize.", LogLevel.WARNING);
+            //Print("[CookingSimulation] No active process to finalize.", LogLevel.WARNING);
             return;
         }
 
@@ -210,7 +215,7 @@ class ProcessCookingSimulation
         if (m_fRawRisk == 0.0 && m_fBurnRisk == 0.0 && m_overCookedRisk < 0.05)
         {
             quality = 100;
-            Print("[CookingSimulation] Perfect Cooking Achieved!", LogLevel.NORMAL);
+            //Print("[CookingSimulation] Perfect Cooking Achieved!", LogLevel.NORMAL);
         }
 		
 		

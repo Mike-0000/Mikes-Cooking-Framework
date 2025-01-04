@@ -12,7 +12,7 @@ class MIKE_CookingRaiseTempUserAction : ScriptedUserAction
 	override bool GetActionNameScript(out string outName)
 	{
 		//ProcessCookingSimulation m_Simulation = cookingComp.GetSimulation();	
-		//Print("test debug11   " + cookingComp.currentHeat,LogLevel.NORMAL);
+		////Print("test debug11   " + cookingComp.currentHeat,LogLevel.NORMAL);
 		outName = "Raise Heat Level. Current: " + cookingComp.currentHeat;
 		return true;
 	}
@@ -33,11 +33,11 @@ class MIKE_CookingRaiseTempUserAction : ScriptedUserAction
 		cookingComp = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
 		if (!cookingComp)
 		{
-			Print("[MIKE_CookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
+			//Print("[MIKE_CookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
 			return;
 		}
 		if(!cookingComp.m_StoveSim.IsStoveActive()){
-			Print("No Active Cooking Simulation Running.", LogLevel.NORMAL);
+			//Print("No Active Cooking Simulation Running.", LogLevel.NORMAL);
 			return;
 		}
 		cookingComp.Server_GetHeat();
@@ -45,7 +45,7 @@ class MIKE_CookingRaiseTempUserAction : ScriptedUserAction
 			return;
 		cookingComp.Server_AdjustHeat(1);
 		cookingComp.ResetIdleTimer();
-		Print("Current Heat is now "+ cookingComp.currentHeat, LogLevel.NORMAL);
+		//Print("Current Heat is now "+ cookingComp.currentHeat, LogLevel.NORMAL);
 	}
 }
 
@@ -60,7 +60,7 @@ class MIKE_CookingLowerTempUserAction : ScriptedUserAction
 	
 	override bool GetActionNameScript(out string outName)
 	{
-		//Print("test debug - Lower Heat  " + cookingComp.currentHeat, LogLevel.NORMAL);
+		////Print("test debug - Lower Heat  " + cookingComp.currentHeat, LogLevel.NORMAL);
 		outName = "Lower Heat Level. Current: " + cookingComp.currentHeat;
 		return true;
 	}
@@ -77,13 +77,13 @@ class MIKE_CookingLowerTempUserAction : ScriptedUserAction
 		cookingComp = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
 		if (!cookingComp)
 		{
-			Print("[MIKE_CookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
+			//Print("[MIKE_CookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
 			return;
 		}
 
 		if(!cookingComp.m_StoveSim.IsStoveActive())
 		{
-			Print("No Active Cooking Simulation Running.", LogLevel.NORMAL);
+			//Print("No Active Cooking Simulation Running.", LogLevel.NORMAL);
 			return;
 		}
 
@@ -97,7 +97,7 @@ class MIKE_CookingLowerTempUserAction : ScriptedUserAction
 		// Lower heat by 1
 		cookingComp.Server_AdjustHeat(-1);
 		cookingComp.ResetIdleTimer();
-		Print("Current Heat is now " + cookingComp.currentHeat, LogLevel.NORMAL);
+		//Print("Current Heat is now " + cookingComp.currentHeat, LogLevel.NORMAL);
 	}
 }
 
@@ -123,7 +123,7 @@ class MIKE_CookingStartCookingUserAction : ScriptedUserAction
 
     override bool CanBeShownScript(IEntity user)
     {
-        if (!cookingComp.ProcessRunning && cookingComp.m_StoveSim.IsStoveActive())
+        if (!cookingComp.ProcessRunning && cookingComp.m_StoveSim.IsStoveActive() && !cookingComp.isDestroyed)
             return true;			
         return false;
     }
@@ -133,7 +133,7 @@ class MIKE_CookingStartCookingUserAction : ScriptedUserAction
         // Ensure components are available
         if (!cookingComp)
         {
-            Print("[MIKE_CookingStartCookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
+            //Print("[MIKE_CookingStartCookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
             return;
         }
 
@@ -142,7 +142,7 @@ class MIKE_CookingStartCookingUserAction : ScriptedUserAction
         SCR_UniversalInventoryStorageComponent StorageComp = SCR_UniversalInventoryStorageComponent.Cast(pOwnerEntity.FindComponent(SCR_UniversalInventoryStorageComponent));
         if (!StorageComp)
         {
-            Print("No Storage Component found on Cooking Device.", LogLevel.WARNING);
+            //Print("No Storage Component found on Cooking Device.", LogLevel.WARNING);
             return;
         }
 
@@ -182,7 +182,7 @@ class MIKE_CookingFinalizeUserAction : ScriptedUserAction
 
     override bool CanBeShownScript(IEntity user)
     {
-//		Print(cookingComp.ProcessRunning, LogLevel.NORMAL);
+//		//Print(cookingComp.ProcessRunning, LogLevel.NORMAL);
         if (cookingComp && cookingComp.ProcessRunning)
             return true;
         return false;
@@ -192,19 +192,19 @@ class MIKE_CookingFinalizeUserAction : ScriptedUserAction
     {
         if (!cookingComp)
         {
-            Print("[MIKE_CookingFinalizeUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
+            //Print("[MIKE_CookingFinalizeUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
             return;
         }
 
         if (!cookingComp.ProcessRunning)
         {
-            Print("[MIKE_CookingFinalizeUserAction] No active cooking simulation to finalize.", LogLevel.NORMAL);
+            //Print("[MIKE_CookingFinalizeUserAction] No active cooking simulation to finalize.", LogLevel.NORMAL);
             return;
         }
 
         cookingComp.Server_FinalizeCooking();
 		cookingComp.ResetIdleTimer();
-        Print("[MIKE_CookingFinalizeUserAction] Requested server to finalize cooking.", LogLevel.NORMAL);
+        //Print("[MIKE_CookingFinalizeUserAction] Requested server to finalize cooking.", LogLevel.NORMAL);
     }
 }
 
@@ -220,7 +220,7 @@ class MIKE_StoveStartUserAction : ScriptedUserAction
         cookingManager = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
         if (!cookingManager)
         {
-            Print("[MIKE_StoveStartUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.ERROR);
+            //Print("[MIKE_StoveStartUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.ERROR);
         }
     }
 
@@ -256,13 +256,13 @@ class MIKE_StoveStartUserAction : ScriptedUserAction
     {
         if (!cookingManager || !cookingManager.m_StoveSim)
         {
-            Print("[MIKE_StoveStartUserAction] Cooking Manager or Stove Simulation not found.", LogLevel.ERROR);
+            //Print("[MIKE_StoveStartUserAction] Cooking Manager or Stove Simulation not found.", LogLevel.ERROR);
             return;
         }
 		cookingManager.ResetIdleTimer();
         cookingManager.m_StoveSim.StartStove();
 		
-        Print("[MIKE_StoveStartUserAction] Stove has been started.", LogLevel.NORMAL);
+        //Print("[MIKE_StoveStartUserAction] Stove has been started.", LogLevel.NORMAL);
     }
 }
 
@@ -278,7 +278,7 @@ class MIKE_StoveStopUserAction : ScriptedUserAction
         cookingManager = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
         if (!cookingManager)
         {
-            Print("[MIKE_StoveStartUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.ERROR);
+            //Print("[MIKE_StoveStartUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.ERROR);
         }
     }
 
@@ -314,12 +314,75 @@ class MIKE_StoveStopUserAction : ScriptedUserAction
     {
         if (!cookingManager || !cookingManager.m_StoveSim)
         {
-            Print("[MIKE_StoveStartUserAction] Cooking Manager or Stove Simulation not found.", LogLevel.ERROR);
+            //Print("[MIKE_StoveStartUserAction] Cooking Manager or Stove Simulation not found.", LogLevel.ERROR);
             return;
         }
 
         cookingManager.m_StoveSim.StopStove();
-        Print("[MIKE_StoveStartUserAction] Stove has been stopped.", LogLevel.NORMAL);
+        //Print("[MIKE_StoveStartUserAction] Stove has been stopped.", LogLevel.NORMAL);
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MIKE_CookingPickUpStoveAction : ScriptedUserAction
+{
+	MIKE_CookingManagerComponent cookingComp;
+//	int counterLimiter = 0;
+//	float currentHeatLevel = 1;
+	
+	override void Init(IEntity pOwnerEntity, GenericComponent pManagerComponent){
+		cookingComp =  MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
+	}
+	
+	// Determines the name displayed for the action when the player looks at the entity
+	override bool GetActionNameScript(out string outName)
+	{
+		//ProcessCookingSimulation m_Simulation = cookingComp.GetSimulation();	
+		////Print("test debug11   " + cookingComp.currentHeat,LogLevel.NORMAL);
+		outName = "Pick Up Stove";
+		return true;
+	}
+
+	// Checks if the action can be performed. Could add conditions like tool requirements.
+	override bool CanBeShownScript(IEntity user)
+	{
+		if(cookingComp.m_StoveSim.IsStoveActive())
+			return false;
+		return true;
+	}
+
+	// Called when the player performs the action.
+	override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
+	{
+
+		// Find the cooking manager component on the entity we are interacting with
+		cookingComp = MIKE_CookingManagerComponent.Cast(pOwnerEntity.FindComponent(MIKE_CookingManagerComponent));
+		if (!cookingComp)
+		{
+			//Print("[MIKE_CookingUserAction] No MIKE_CookingManagerComponent found on this entity.", LogLevel.WARNING);
+			return;
+		}
+		MIKE_CookingPlayerManagerComponent cookingPlayerComp = MIKE_CookingPlayerManagerComponent.Cast(pUserEntity.FindComponent(MIKE_CookingPlayerManagerComponent));
+		if (!cookingPlayerComp)
+		{
+			//Print("[MIKE_CookingUserAction] No MIKE_CookingPlayerManagerComponent found on this entity.", LogLevel.WARNING);
+			return;
+		}
+		cookingPlayerComp.PickUpStove_Initiator(cookingComp.StoveItemPrefab, pOwnerEntity);
+		
+		return;
+	}
 }
 

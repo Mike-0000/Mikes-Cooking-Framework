@@ -67,14 +67,14 @@ class StoveSimulation
         if (setting < 0) setting = 0;
         if (setting > 10) setting = 10;
         m_iStoveSetting = setting;
-        Print("[StoveSimulation] Stove Setting changed to: " + m_iStoveSetting, LogLevel.NORMAL);
+        //Print("[StoveSimulation] Stove Setting changed to: " + m_iStoveSetting, LogLevel.NORMAL);
     }
 
     void AdjustStoveSetting(float value)
     {
         if (!m_bStoveActive)
         {
-            Print("[StoveSimulation] Stove is not active; cannot adjust heat.", LogLevel.WARNING);
+            //Print("[StoveSimulation] Stove is not active; cannot adjust heat.", LogLevel.WARNING);
             return;
         }
 
@@ -82,7 +82,7 @@ class StoveSimulation
         if (m_iStoveSetting < 0)  m_iStoveSetting = 0;
         if (m_iStoveSetting > 11) m_iStoveSetting = 11;
         
-        Print("[StoveSimulation] Stove setting adjusted by " + value + ". Current Setting: " + m_iStoveSetting, LogLevel.NORMAL);
+        //Print("[StoveSimulation] Stove setting adjusted by " + value + ". Current Setting: " + m_iStoveSetting, LogLevel.NORMAL);
     }
     
     // Main stove temperature update (same math as before)
@@ -159,16 +159,16 @@ class StoveSimulation
             m_fCurrentStoveHeat = 0;
 		
 		
-		        Print("[StoveSimulation] StoveHeat=" + m_fCurrentStoveHeat 
-            + " | TargetHeat=" + targetHeat 
-            + " | HeatSoak=" + m_fHeatSoak, LogLevel.NORMAL);
+		        //Print("[StoveSimulation] StoveHeat=" + m_fCurrentStoveHeat 
+//            + " | TargetHeat=" + targetHeat 
+//            + " | HeatSoak=" + m_fHeatSoak, LogLevel.NORMAL);
     
 		
 		if (m_fCurrentStoveHeat<190){
 			GameSignal.SetSignalValue(BoilIndex, 0);
 		}else{
 
-			GameSignal.SetSignalValue(BoilIndex, (m_fCurrentStoveHeat-189)/380);
+			GameSignal.SetSignalValue(BoilIndex, (m_fCurrentStoveHeat-189)/280);
 			
 		}
 	}

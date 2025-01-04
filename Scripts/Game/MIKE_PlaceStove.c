@@ -17,7 +17,7 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 		cookingPlayerComp = MIKE_CookingPlayerManagerComponent.Cast(user.FindComponent(MIKE_CookingPlayerManagerComponent));
 		
 		if (!cookingPlayerComp){
-			Print("No Cooking Game Mode Component Found!", LogLevel.ERROR);
+			//Print("No Cooking Game Mode Component Found!", LogLevel.ERROR);
 			return false;
 		}
 		

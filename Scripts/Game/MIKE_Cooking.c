@@ -13,7 +13,10 @@ class MIKE_CookingManagerComponent : ScriptComponent
 
     [Attribute("", UIWidgets.Coords)]
     private vector m_vSoundOffset;
-
+	[Attribute(desc: "Placeable Stove Item Prefab.", params: "et")]
+    ResourceName StoveItemPrefab;
+	[RplProp()]
+	bool isDestroyed = false;
     [RplProp()]
     float currentHeat;
 	[RplProp()]
@@ -51,7 +54,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
         
         if (!m_RecipeManager)
         {
-            Print("[MIKE_CookingManagerComponent] Recipe Manager not found on entity.", LogLevel.ERROR);
+            //Print("[MIKE_CookingManagerComponent] Recipe Manager not found on entity.", LogLevel.ERROR);
         }
 		Replication.BumpMe();
     }
@@ -113,13 +116,13 @@ class MIKE_CookingManagerComponent : ScriptComponent
 			Rpc(RpcAsk_CheckIdleStatus);
 			return;
 		}
-		Print("[CookingManager] Adding to Inactivity Tracker:" + m_fTimeSinceLastInteraction, LogLevel.NORMAL);
+		//Print("[CookingManager] Adding to Inactivity Tracker:" + m_fTimeSinceLastInteraction, LogLevel.NORMAL);
 		if (m_fTimeSinceLastInteraction >= m_fIdleTimeout)
 	    {
 				Rpc(RpcDo_ShutDownStoveClient);
 	            m_StoveSim.StopStove();
 				StopSound();
-	            Print("[CookingManager] Stove stopped due to inactivity.", LogLevel.NORMAL);
+	            //Print("[CookingManager] Stove stopped due to inactivity.", LogLevel.NORMAL);
        }
 		
 	}
@@ -143,7 +146,10 @@ class MIKE_CookingManagerComponent : ScriptComponent
     {
         Server_FinalizeCooking();
     }
-
+	static float DegToRad(float degrees)
+	{
+    		return degrees * (Math.PI / 180.0);
+	}
     void Server_FinalizeCooking()
     {
         if (!Replication.IsServer())
@@ -164,7 +170,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
             bestMatch = m_RecipeManager.bestMatch;
             if (!bestMatch)
             {
-                Print("[MIKE_CookingManagerComponent] No best match found to finalize with.", LogLevel.WARNING);
+                //Print("[MIKE_CookingManagerComponent] No best match found to finalize with.", LogLevel.WARNING);
                 return;
             }
 
@@ -195,10 +201,109 @@ class MIKE_CookingManagerComponent : ScriptComponent
                 numItemsToSpawn = 1;
             }
 
-            Print("[MIKE_CookingManagerComponent] FinalizeCooking: " + outcomeItem + 
-                  " (Quality: " + quality + "), ratio=" + bestMatch.m_fLastMatchRatio, LogLevel.NORMAL);
-            Print("Spawning items: " + numItemsToSpawn, LogLevel.NORMAL);
+            //Print("[MIKE_CookingManagerComponent] FinalizeCooking: " + outcomeItem + 
+//                  " (Quality: " + quality + "), ratio=" + bestMatch.m_fLastMatchRatio, LogLevel.NORMAL);
+            //Print("Spawning items: " + numItemsToSpawn, LogLevel.NORMAL);
 
+			
+			
+			
+			
+			IEntity user = IEntity.Cast(this.GetOwner());
+		
+			if (!finalPrefab || !user)
+		    {
+		        //Print("SpawnStoveInFrontOfUser: Prefab or user entity is null.", LogLevel.ERROR);
+		        return;
+		    }
+		
+		    // 1. Get user's world position
+		    vector userPos = user.GetOrigin();
+		    //Print("User Position: " + userPos, LogLevel.NORMAL);
+		
+		    // 2. Get user's orientation angles
+		    vector userAngles = user.GetAngles();
+		    //Print("User Angles (Degrees): " + userAngles, LogLevel.NORMAL);
+		
+		    // 3. Correctly extract Yaw from userAngles[1]
+		    float yawDegrees = userAngles[1];
+		    float yawRad = DegToRad(yawDegrees);
+		    //Print("User Yaw: " + yawDegrees + " degrees, " + yawRad + " radians", LogLevel.NORMAL);
+		
+		    // 4. Calculate a flat forward direction (ignore pitch and roll)
+		    float cosYaw = Math.Cos(yawRad);
+		    float sinYaw = Math.Sin(yawRad);
+		    //Print("cosYaw: " + cosYaw + ", sinYaw: " + sinYaw, LogLevel.NORMAL);
+		
+		    vector forward;
+		    forward[0] = sinYaw;  // X component
+		    forward[1] = 0.0;     // Y component remains unchanged to avoid sinking underground
+		    forward[2] = cosYaw;  // Z component
+		    //Print("Forward Vector: " + forward, LogLevel.NORMAL);
+		
+		    // 5. Define the spawn distance
+		    float spawnDistance = 1; // 2 meters in front
+		    //Print("Spawn Distance: " + spawnDistance, LogLevel.NORMAL);
+		
+		    // 6. Calculate spawn position by adding forward vector scaled by spawn distance
+		    vector spawnOffset;
+		    spawnOffset[0] = forward[0] * spawnDistance;
+		    spawnOffset[1] = forward[1] * spawnDistance;
+		    spawnOffset[2] = forward[2] * spawnDistance;
+		    //Print("Spawn Offset: " + spawnOffset, LogLevel.NORMAL);
+		
+		    vector spawnPos;
+		    spawnPos[0] = userPos[0] + spawnOffset[0];
+		    spawnPos[1] = userPos[1]; // Keep the same Y position
+		    spawnPos[2] = userPos[2] + spawnOffset[2];
+		    //Print("Calculated Spawn Position: " + spawnPos, LogLevel.NORMAL);
+		
+		    // 7. Construct the rotation matrix based on yaw
+		    vector spawnTransform[4];
+		
+		    // Right Vector: <cosYaw, 0.0, -sinYaw>
+		    spawnTransform[0] = Vector(cosYaw, 0.0, -sinYaw); // "right" axis
+		    //Print("Spawn Transform Right Vector: " + spawnTransform[0], LogLevel.NORMAL);
+		
+		    // Up Vector remains unchanged
+		    spawnTransform[1] = Vector(0.0, 1.0, 0.0); // "up" axis
+		    //Print("Spawn Transform Up Vector: " + spawnTransform[1], LogLevel.NORMAL);
+		
+		    // Forward Vector: <sinYaw, 0.0, cosYaw>
+		    spawnTransform[2] = Vector(sinYaw, 0.0, cosYaw); // "forward" axis
+		    //Print("Spawn Transform Forward Vector: " + spawnTransform[2], LogLevel.NORMAL);
+		
+		    // Position Vector
+		    spawnTransform[3] = spawnPos;
+		    //Print("Spawn Transform Position: " + spawnTransform[3], LogLevel.NORMAL);
+		
+		    // 8. Rotate the object 180 degrees around its own Y-axis
+		    // This is done by negating the X and Z components of the Right and Forward vectors
+		    // Since we're dealing with indices, we'll access components by [0], [1], [2]
+		    spawnTransform[0][0] = -spawnTransform[0][0]; // Negate X of Right Vector
+		    spawnTransform[0][2] = -spawnTransform[0][2]; // Negate Z of Right Vector
+		
+		    spawnTransform[2][0] = -spawnTransform[2][0]; // Negate X of Forward Vector
+		    spawnTransform[2][2] = -spawnTransform[2][2]; // Negate Z of Forward Vector
+		
+		    //Print("After 180-degree Rotation:");
+		    //Print("Spawn Transform Right Vector: " + spawnTransform[0], LogLevel.NORMAL);
+		    //Print("Spawn Transform Forward Vector: " + spawnTransform[2], LogLevel.NORMAL);
+		
+		    // 9. Set up the spawn parameters
+		    EntitySpawnParams params = EntitySpawnParams();
+		    params.TransformMode = ETransformMode.WORLD;
+		    params.Transform = spawnTransform;
+		    //Print("EntitySpawnParams.TransformMode set to WORLD.", LogLevel.NORMAL);
+		    //Print("EntitySpawnParams.Transform: " + params.Transform, LogLevel.NORMAL);
+		
+		    // 10. Spawn the entity
+		    //IEntity entity = GetGame().SpawnEntityPrefab(Resource.Load(stoveItem), user.GetWorld(), params);
+				
+
+			
+			
+			
 			
 			
 			
@@ -208,32 +313,42 @@ class MIKE_CookingManagerComponent : ScriptComponent
             int i = 0;
             while (i < numItemsToSpawn)
             {
-                IEntity item = GetGame().SpawnEntityPrefab(Resource.Load(finalPrefab));
-                if (item)
-                {
-                    EStoragePurpose purpose = EStoragePurpose.PURPOSE_ANY;
-                    if (item.FindComponent(WeaponComponent))
-                    {
-                        purpose = EStoragePurpose.PURPOSE_WEAPON_PROXY;
-                    }
-                    else if (item.FindComponent(BaseLoadoutClothComponent))
-                    {
-                        purpose = EStoragePurpose.PURPOSE_LOADOUT_PROXY;
-                    }
-                    else if (item.FindComponent(SCR_GadgetComponent))
-                    {
-                        purpose = EStoragePurpose.PURPOSE_GADGET_PROXY;
-                    }
+			IEntity entity = GetGame().SpawnEntityPrefab(Resource.Load(finalPrefab), user.GetWorld(), params);
 
-                    InventoryStorageSlot storageSlot = StorageComp.GetSlot(i);
-                    storageSlot.AttachEntity(item);
-                }
+//                IEntity item = GetGame().SpawnEntityPrefab(Resource.Load(finalPrefab));
+//                if (item)
+//                {
+//                    EStoragePurpose purpose = EStoragePurpose.PURPOSE_ANY;
+//                    if (item.FindComponent(WeaponComponent))
+//                    {
+//                        purpose = EStoragePurpose.PURPOSE_WEAPON_PROXY;
+//                    }
+//                    else if (item.FindComponent(BaseLoadoutClothComponent))
+//                    {
+//                        purpose = EStoragePurpose.PURPOSE_LOADOUT_PROXY;
+//                    }
+//                    else if (item.FindComponent(SCR_GadgetComponent))
+//                    {
+//                        purpose = EStoragePurpose.PURPOSE_GADGET_PROXY;
+//                    }
+//					int p = 0;
+//					while (p < StorageComp.GetSlotsCount()){
+//                    		IEntity entity = StorageComp.GetSlot(i).GetAttachedEntity();
+//						InventoryStorageSlot storageSlot = StorageComp.GetSlot(i);
+//							if(!entity){
+//                    				storageSlot.AttachEntity(item);
+//								return;
+//						}else if(p == StorageComp.GetSlotsCount()){
+//							Print("NO FREE SLOTS FOUND", LogLevel.ERROR);
+//						}
+//					}
+//                }
                 i = i + 1;
             }
         }
         else
         {
-            Print("[MIKE_CookingManagerComponent] No active cooking simulation to finalize.", LogLevel.NORMAL);
+            //Print("[MIKE_CookingManagerComponent] No active cooking simulation to finalize.", LogLevel.NORMAL);
         }
     }
 
@@ -243,11 +358,11 @@ class MIKE_CookingManagerComponent : ScriptComponent
     {
         if (!m_RecipeManager)
         {
-            Print("[MIKE_CookingManagerComponent] Recipe Manager not initialized.", LogLevel.ERROR);
+            //Print("[MIKE_CookingManagerComponent] Recipe Manager not initialized.", LogLevel.ERROR);
             return;
         }
         m_RecipeManager.InitializeRecipes();
-        Print("[MIKE_CookingManagerComponent] Recipes initialized.", LogLevel.NORMAL);
+        //Print("[MIKE_CookingManagerComponent] Recipes initialized.", LogLevel.NORMAL);
     }
 
 	 void ResetIdleTimer()
@@ -271,7 +386,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
 
         if (!bestRecipe || bestScore < 0.3)
         {
-            Print("[MIKE_CookingManagerComponent] No suitable recipe match found.", LogLevel.WARNING);
+            //Print("[MIKE_CookingManagerComponent] No suitable recipe match found.", LogLevel.WARNING);
             return;
         }
 
@@ -279,12 +394,12 @@ class MIKE_CookingManagerComponent : ScriptComponent
         {
             m_Simulation.StartProcess(bestRecipe.recipeName, bestRecipe.optimalHeatMin, bestRecipe.optimalHeatMax, ownerEntity, bestRecipe.recipeName);
             ProcessRunning = true;
-            Print("[MIKE_CookingManagerComponent] Process started for recipe: " + bestRecipe.recipeName + 
-                  " (Match Score: " + (bestScore * 100) + "%)", LogLevel.NORMAL);
+            //Print("[MIKE_CookingManagerComponent] Process started for recipe: " + bestRecipe.recipeName + 
+//                  " (Match Score: " + (bestScore * 100) + "%)", LogLevel.NORMAL);
         }
         else
         {
-            Print("[MIKE_CookingManagerComponent] Cannot start process: already running or simulation missing.", LogLevel.WARNING);
+            //Print("[MIKE_CookingManagerComponent] Cannot start process: already running or simulation missing.", LogLevel.WARNING);
         }
     }
 
@@ -328,7 +443,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
         }
         else
         {
-            Print("[MIKE_CookingManagerComponent] No active process to adjust heat for.", LogLevel.WARNING);
+            //Print("[MIKE_CookingManagerComponent] No active process to adjust heat for.", LogLevel.WARNING);
         }
     }
 
@@ -351,7 +466,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
         }
         else
         {
-            Print("[MIKE_CookingManagerComponent] No active process.", LogLevel.WARNING);
+            //Print("[MIKE_CookingManagerComponent] No active process.", LogLevel.WARNING);
         }
     }
 
@@ -360,12 +475,12 @@ class MIKE_CookingManagerComponent : ScriptComponent
         if (m_StoveSim && m_StoveSim.IsStoveActive())
         {
             currentHeat = m_StoveSim.GetStoveSetting();
-            Print("Heat from Component? " + m_StoveSim.GetStoveSetting() + " " + currentHeat, LogLevel.NORMAL);
+            //Print("Heat from Component? " + m_StoveSim.GetStoveSetting() + " " + currentHeat, LogLevel.NORMAL);
             Replication.BumpMe();
         }
         else
         {
-            Print("[MIKE_CookingManagerComponent] No active process.", LogLevel.WARNING);
+            //Print("[MIKE_CookingManagerComponent] No active process.", LogLevel.WARNING);
         }
     }
 
@@ -385,8 +500,8 @@ class MIKE_CookingManagerComponent : ScriptComponent
             string outcomeItem = m_Simulation.GetOutcomeItem();
             int quality = m_Simulation.GetQualityScore();
 
-            Print("[MIKE_CookingManagerComponent] Process finalized on server. Outcome: " + outcomeItem 
-                  + " (Quality: " + quality + ")", LogLevel.NORMAL);
+            //Print("[MIKE_CookingManagerComponent] Process finalized on server. Outcome: " + outcomeItem 
+//                  + " (Quality: " + quality + ")", LogLevel.NORMAL);
 
             if (m_pRplComponent && requestingPlayerId.IsValid())
             {
@@ -395,14 +510,14 @@ class MIKE_CookingManagerComponent : ScriptComponent
         }
         else
         {
-            Print("[MIKE_CookingManagerComponent] No active process to finalize.", LogLevel.WARNING);
+            //Print("[MIKE_CookingManagerComponent] No active process to finalize.", LogLevel.WARNING);
         }
     }
 
     [RplRpc(RplChannel.Reliable, RplRcver.Owner)]
     protected void RpcDo_SendCookingResult(RplId requestingPlayerId, string resultItem, int quality)
     {
-        Print("[MIKE_CookingManagerComponent] Client received result: " + resultItem + " (Quality: " + quality + ")", LogLevel.NORMAL);
+        //Print("[MIKE_CookingManagerComponent] Client received result: " + resultItem + " (Quality: " + quality + ")", LogLevel.NORMAL);
     }
 
     // -------------------------------------------------------------------------
