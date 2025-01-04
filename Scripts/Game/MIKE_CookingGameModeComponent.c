@@ -8,21 +8,35 @@ class MIKE_CookingPlayerManagerComponentClass : ScriptComponentClass
 
 class MIKE_CookingPlayerManagerComponent : ScriptComponent
 {
-
+	//IEntity item;
+	InventoryItemComponent itemComp;
 	static float DegToRad(float degrees)
 	{
     		return degrees * (Math.PI / 180.0);
 	}
 	
+	
+	void initiate_SpawnStove(ResourceName m_rnStovePrefab, IEntity item1){
+		itemComp = InventoryItemComponent.Cast(item1.FindComponent(InventoryItemComponent));
+		RplId itemCompId = Replication.FindId(itemComp);
+		if(itemCompId == Replication.INVALID_ID){
+			Print("No garageCompID Found from Replication", LogLevel.ERROR);
+			return;
+		}
+//		itemComp.RequestUserLock(GetOwner(), false);
+//		SCR_EntityHelper.DeleteEntityAndChildren(item1);
+//		RplComponent.DeleteRplEntity(item1, false);
+		SpawnStoveInFrontOfUser(m_rnStovePrefab, itemCompId);
+	}
    [RplRpc(RplChannel.Reliable, RplRcver.Server)]
-    void RpcAsk_SpawnStoveInFrontOfUser(ResourceName m_rnStovePrefab1)
+    void RpcAsk_SpawnStoveInFrontOfUser(ResourceName m_rnStovePrefab1, RplId itemCompID1)
     {
-        SpawnStoveInFrontOfUser(m_rnStovePrefab1);
+        SpawnStoveInFrontOfUser(m_rnStovePrefab1, itemCompID1);
     }
 
 
 	
-	bool SpawnStoveInFrontOfUser(ResourceName m_rnStovePrefab)
+	bool SpawnStoveInFrontOfUser(ResourceName m_rnStovePrefab, RplId itemCompID)
 	{
 	    if (Replication.IsServer())
         {
@@ -121,12 +135,56 @@ class MIKE_CookingPlayerManagerComponent : ScriptComponent
 	        Print("SpawnStoveInFrontOfUser: Failed to spawn stove prefab.", LogLevel.ERROR);
 	        return false;
 	    }
-	
+		
 	    Print("Successfully spawned stove entity at position: " + spawnPos, LogLevel.NORMAL);
 	    Print("Spawned Entity Rotation - Right: " + spawnTransform[0] + ", Up: " + spawnTransform[1] + ", Forward: " + spawnTransform[2], LogLevel.NORMAL);
+
+			
+			
+			
+
+							// NOT owner of the character in possession of this gadget
+
+		//IEntity item = IEntity.Cast(Replication.FindItem(itemId));
+
+
+//		IEntity item = IEntity.Cast(Replication.FindItem(itemID2));
+//		Print("trying to delete item in hand",LogLevel.NORMAL);
+//		
+//		if (!item){
+//			Print("No Item Found!",LogLevel.ERROR);
+//			return false;
+//		} 
+//		RplComponent rplComponent = RplComponent.Cast(item.FindComponent(RplComponent));
+//		if (!rplComponent || !rplComponent.IsOwner()){
+//			Print("rplComponent ERROR", LogLevel.ERROR);
+//		}
+	
+		// Unlock and delete the item from the world/inventory
+		InventoryItemComponent itemComp = InventoryItemComponent.Cast(Replication.FindItem(itemCompID));
+			//InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+		if (!itemComp){
+			Print("No itemComp Found!",LogLevel.ERROR);
+			return false;
+		} 
+		if (itemComp)
+		{
+			// If the item is "locked" to the user’s hands, unlock it before deleting
+			itemComp.RequestUserLock(GetOwner(), false);
+		}
+	
+		// Remove the entity from the world
+		SCR_EntityHelper.DeleteEntityAndChildren(itemComp.GetOwner());
+		
+			RplComponent.DeleteRplEntity(itemComp.GetOwner(), false);
+		//	Replication.DeleteRplEntity(item, false);
+			
+		Print("Attempted to delete item successfully",LogLevel.NORMAL);
+			
+		//DeleteItem(itemId);
 	    return true;
 		}else{           
-			Rpc(RpcAsk_SpawnStoveInFrontOfUser, m_rnStovePrefab);
+			Rpc(RpcAsk_SpawnStoveInFrontOfUser, m_rnStovePrefab, itemCompID);
 		}
         return false;
 		
@@ -143,33 +201,56 @@ class MIKE_CookingPlayerManagerComponent : ScriptComponent
     // -------------------------------------------------------------------------
 
 
-   
+//	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+//    void RpcAsk_DeleteItem(RplId itemId1)
+//    {
+//        DeleteItem(itemId1);
+//    }
+//	
+//   void DeleteItem(RplId itemID2)
+//	{
+//		
+//		RplComponent rplComponent = RplComponent.Cast(this.FindComponent(RplComponent));
+//		if (!rplComponent || !rplComponent.IsOwner())
+//			return;					// NOT owner of the character in possession of this gadget
+//
+//		
+//		
+//		// Normally, ApplyEffect is for healing, etc. We'll just skip or do nothing.
+//		// If you want the item to be removed from inventory, confirm your base class does so
+//		// or handle that here.
+//		if(Replication.IsServer())
+//			Rpc(RpcAsk_DeleteItem, itemID2);
+//
+////		IEntity item = IEntity.Cast(Replication.FindItem(itemID2));
+//		Print("trying to delete item in hand",LogLevel.NORMAL);
+//		
+////		if (!item){
+////			Print("No Item Found!",LogLevel.ERROR);
+////			return;
+////		} 
+//
+//		// Unlock and delete the item from the world/inventory
+//		InventoryItemComponent itemComp1 = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+//		if (!itemComp1){
+//			Print("No itemComp Found!",LogLevel.ERROR);
+//			return;
+//		} 
+//		if (itemComp)
+//		{
+//			// If the item is "locked" to the user’s hands, unlock it before deleting
+//			itemComp.RequestUserLock(GetOwner(), false);
+//		}
+//	
+//		// Remove the entity from the world
+//		SCR_EntityHelper.DeleteEntityAndChildren(item);
+//		
+//				RplComponent.DeleteRplEntity(item, false);
+////		rplComponent.DeleteRplEntity();
+//		
+//	}
 
-	void DeleteItem(notnull IEntity user, IEntity item)
-	{
-		// Normally, ApplyEffect is for healing, etc. We'll just skip or do nothing.
-		// If you want the item to be removed from inventory, confirm your base class does so
-		// or handle that here.
-		
-		
-		Print("trying to delete item in hand",LogLevel.NORMAL);
-		
-		if (!item) return;
-
-		// Unlock and delete the item from the world/inventory
-		InventoryItemComponent itemComp = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
-		if (itemComp)
-		{
-			// If the item is "locked" to the user’s hands, unlock it before deleting
-			itemComp.RequestUserLock(user, false);
-		}
-
-		// Remove the entity from the world
-		SCR_EntityHelper.DeleteEntityAndChildren(item);
-		
-		
-		
-	}
+	
 
 	
     // -------------------------------------------------------------------------

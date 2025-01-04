@@ -21,10 +21,9 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 			return false;
 		}
 		
-
 		
-		cookingPlayerComp.SpawnStoveInFrontOfUser(m_rnStovePrefab);
-
+		
+		cookingPlayerComp.initiate_SpawnStove(m_rnStovePrefab, item);
 		
 
 		ChimeraCharacter character = ChimeraCharacter.Cast(user);
@@ -37,7 +36,6 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 	    noAnimParams.SetEntity(item);
 	    noAnimParams.SetCommandID(-1); // A command ID that doesn't exist
 	    noAnimParams.SetMaxAnimLength(0.0); // zero-duration
-	
 	    // This effectively tells the system "use the item" without playing any real animation.
 	    bool activatedAction = controller.TryUseItemOverrideParams(noAnimParams);
 		super.ActivateEffect(target, user, item, noAnimParams);
@@ -52,7 +50,7 @@ class MIKE_PlaceStove : SCR_ConsumableEffectBase
 	override bool CanApplyEffect(notnull IEntity target, notnull IEntity user, out SCR_EConsumableFailReason failReason = SCR_EConsumableFailReason.NONE){
 		return true;
 	}
-
+	
 	//------------------------------------------------------------------------------------------------
 	
 

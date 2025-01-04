@@ -44,7 +44,7 @@ class MIKE_CookingRaiseTempUserAction : ScriptedUserAction
 		if (cookingComp.currentHeat >= 11)
 			return;
 		cookingComp.Server_AdjustHeat(1);
-		cookingComp.m_StoveSim.ResetIdleTimer();
+		cookingComp.ResetIdleTimer();
 		Print("Current Heat is now "+ cookingComp.currentHeat, LogLevel.NORMAL);
 	}
 }
@@ -96,7 +96,7 @@ class MIKE_CookingLowerTempUserAction : ScriptedUserAction
 
 		// Lower heat by 1
 		cookingComp.Server_AdjustHeat(-1);
-		cookingComp.m_StoveSim.ResetIdleTimer();
+		cookingComp.ResetIdleTimer();
 		Print("Current Heat is now " + cookingComp.currentHeat, LogLevel.NORMAL);
 	}
 }
@@ -155,7 +155,7 @@ class MIKE_CookingStartCookingUserAction : ScriptedUserAction
        
             // Start cooking with the best match, including the score
 			cookingComp.Server_StartProcess(items);
-		cookingComp.m_StoveSim.ResetIdleTimer();
+		cookingComp.ResetIdleTimer();
         
     }
 }
@@ -203,7 +203,7 @@ class MIKE_CookingFinalizeUserAction : ScriptedUserAction
         }
 
         cookingComp.Server_FinalizeCooking();
-		cookingComp.m_StoveSim.ResetIdleTimer();
+		cookingComp.ResetIdleTimer();
         Print("[MIKE_CookingFinalizeUserAction] Requested server to finalize cooking.", LogLevel.NORMAL);
     }
 }
@@ -259,7 +259,7 @@ class MIKE_StoveStartUserAction : ScriptedUserAction
             Print("[MIKE_StoveStartUserAction] Cooking Manager or Stove Simulation not found.", LogLevel.ERROR);
             return;
         }
-
+		cookingManager.ResetIdleTimer();
         cookingManager.m_StoveSim.StartStove();
 		
         Print("[MIKE_StoveStartUserAction] Stove has been started.", LogLevel.NORMAL);

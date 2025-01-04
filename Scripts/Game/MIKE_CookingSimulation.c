@@ -24,7 +24,7 @@ class ProcessCookingSimulation
 	bool  m_bisDestroyed;
 	IEntity newOwnerEntity;
 	int BoilIndex;
-    
+    MIKE_CookingManagerComponent cookingManager;
 	SCR_DestructionMultiPhaseComponent destructionComp;
 	SCR_ExplosiveChargeComponent explosiveComp;
     private int    m_iQualityScore;
@@ -69,7 +69,7 @@ class ProcessCookingSimulation
 //        BoilIndex = GameSignal.AddOrFindMPSignal("StoveTemp", 2, 0.1, 70);
 //		GameSignal.AddOrFindMPSignal("optimalHeatMin", 2, 0.1, optimalHeatMin);
 //		GameSignal.AddOrFindMPSignal("optimalHeatMax", 2, 0.1, optimalHeatMax);
-
+		cookingManager = MIKE_CookingManagerComponent.Cast(ownerEntity.FindComponent(MIKE_CookingManagerComponent));
 		newOwnerEntity = ownerEntity;
 		destructionComp = SCR_DestructionMultiPhaseComponent.Cast(ownerEntity.FindComponent(SCR_DestructionMultiPhaseComponent));
         explosiveComp = SCR_ExplosiveChargeComponent.Cast(ownerEntity.FindComponent(SCR_ExplosiveChargeComponent));
@@ -108,7 +108,6 @@ class ProcessCookingSimulation
         float stoveHeat = 0.0;
         if (m_StoveSim){
             stoveHeat = m_StoveSim.GetCurrentStoveHeat();
-			m_StoveSim.ResetIdleTimer();
 		}
 		 Print("Stove Heat: " + stoveHeat, LogLevel.NORMAL);
 
@@ -146,7 +145,7 @@ class ProcessCookingSimulation
 		
 		if (stoveHeat > m_fOptimalHeatMax+40 && recipeName == "Meth"){
 			hitZoneDamageToDo += 200;
-			if(destructionComp.GetHealth() <= 500 && !m_bisDestroyed){
+			if(destructionComp.GetHealth() <= 600 && !m_bisDestroyed){
 //				Print("GOING FOR EXPLOSION", LogLevel.WARNING);
 				explosiveComp.SetFuzeTime(3,false);
 				explosiveComp.ArmWithTimedFuze(false);
@@ -154,8 +153,7 @@ class ProcessCookingSimulation
 				m_bActive = false;
 				GetGame().GetCallqueue().CallLater(destructionComp.InitDestruction, 2999, false);
 				GetGame().GetCallqueue().CallLater(destructionComp.SetHitZoneHealth, 2999, false, 0, false); 
-				GetGame().GetCallqueue().CallLater(m_StoveSim.StopStove, 2999, false); 
-
+				GetGame().GetCallqueue().CallLater(cookingManager.StopSound, 2900, false); 
 
 
 			}

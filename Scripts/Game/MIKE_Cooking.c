@@ -16,21 +16,22 @@ class MIKE_CookingManagerComponent : ScriptComponent
 
     [RplProp()]
     float currentHeat;
-
+	[RplProp()]
+	float m_fTimeSinceLastInteraction;
     int currentTick;
     ref ProcessCookingSimulation m_Simulation;
     ref StoveSimulation m_StoveSim;
     WeightedRecipe bestMatch = null;
-
+    private float m_fIdleTimeout = 360.0; 
     protected float accumulatedTime = 0.0;
 
     [RplProp()]
     bool ProcessRunning;
-
     protected RplComponent m_pRplComponent; 
     MIKE_RecipeManagerComponent m_RecipeManager;
     SCR_UniversalInventoryStorageComponent StorageComp;
     IEntity ownerEntity;
+	SoundComponent soundComp;
 
     // -------------------------------------------------------------------------
     override void OnPostInit(IEntity owner)
@@ -38,6 +39,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
         super.OnPostInit(owner);
         
         SetEventMask(GetOwner(), EntityEvent.FRAME);
+		soundComp = SoundComponent.Cast(owner.FindComponent(SoundComponent));
 
         StorageComp = SCR_UniversalInventoryStorageComponent.Cast(owner.FindComponent(SCR_UniversalInventoryStorageComponent));
         m_StoveSim = new StoveSimulation(owner, m_AudioSourceConfiguration, m_vSoundOffset);
@@ -51,6 +53,7 @@ class MIKE_CookingManagerComponent : ScriptComponent
         {
             Print("[MIKE_CookingManagerComponent] Recipe Manager not found on entity.", LogLevel.ERROR);
         }
+		Replication.BumpMe();
     }
 
     // -------------------------------------------------------------------------
@@ -68,18 +71,21 @@ class MIKE_CookingManagerComponent : ScriptComponent
 		
         if (currentTick == 20)
         {
+			
             currentTick = 0;
 
 			if (m_StoveSim && m_StoveSim.IsStoveActive())
             {
                 m_StoveSim.UpdateStove(accumulatedTime, accumulatedTime);
-            }
+				if(m_Simulation && !m_Simulation.IsProcessActive()){
+					m_fTimeSinceLastInteraction += accumulatedTime;
+            		CheckIdleStatus();
+				}
+			}
             if (m_Simulation && m_Simulation.IsProcessActive())
             {
                 m_Simulation.Update(accumulatedTime);
             }
-
-            
             accumulatedTime = 0.0;
             GetSimulationStatus();
         }
@@ -88,7 +94,48 @@ class MIKE_CookingManagerComponent : ScriptComponent
             currentTick++;
         }
     }
+	
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	void RpcDo_ShutDownStoveClient(){
+		SendStatus();
+	}
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	void RpcAsk_CheckIdleStatus(){
+		CheckIdleStatus();
+	}
+	void SendStatus(){
+		m_StoveSim.StopStove();
 
+	}
+	
+	void CheckIdleStatus(){
+		if(!Replication.IsServer()){
+			Rpc(RpcAsk_CheckIdleStatus);
+			return;
+		}
+		Print("[CookingManager] Adding to Inactivity Tracker:" + m_fTimeSinceLastInteraction, LogLevel.NORMAL);
+		if (m_fTimeSinceLastInteraction >= m_fIdleTimeout)
+	    {
+				Rpc(RpcDo_ShutDownStoveClient);
+	            m_StoveSim.StopStove();
+				StopSound();
+	            Print("[CookingManager] Stove stopped due to inactivity.", LogLevel.NORMAL);
+       }
+		
+	}
+	
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	void Server_StopSound(){
+		StopSound();
+
+	}
+
+	void StopSound(){
+		Rpc(Server_StopSound);
+		if(soundComp)
+			soundComp.TerminateAll();
+		
+	}
     // -------------------------------------------------------------------------
     // Finalize the cooking process
     [RplRpc(RplChannel.Reliable, RplRcver.Server)]
@@ -203,6 +250,13 @@ class MIKE_CookingManagerComponent : ScriptComponent
         Print("[MIKE_CookingManagerComponent] Recipes initialized.", LogLevel.NORMAL);
     }
 
+	 void ResetIdleTimer()
+    {
+        m_fTimeSinceLastInteraction = 0.0;
+    }
+	
+	
+	
     void Server_StartProcess(array<InventoryItemComponent> ingredients)
     {
         if (!Replication.IsServer())
