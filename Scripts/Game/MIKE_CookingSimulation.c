@@ -128,12 +128,12 @@ class ProcessCookingSimulation
             {
                 // both decaying raw risk and building burn risk
                 m_fRawRisk   -= deltaTime * 0.06;
-                m_fBurnRisk  += deltaTime * 0.0005 * (stoveHeat - m_fOptimalHeatMax);
+                m_fBurnRisk  += deltaTime * 0.0002 * (stoveHeat - m_fOptimalHeatMax);
             }
         }
         else if (m_fBurnRisk < 1.0)
         {
-            if (stoveHeat > m_fOptimalHeatMax)
+            if (stoveHeat > m_fOptimalHeatMax + 20)
             {
                 m_fBurnRisk += deltaTime * 0.1;
                 if (m_fBurnRisk > 1.0) 
@@ -143,7 +143,7 @@ class ProcessCookingSimulation
 		
 		// METH LAB DESTRUCTION LOGIC
 		
-		if (stoveHeat > m_fOptimalHeatMax+40 && recipeName == "Meth"){
+		if (stoveHeat > m_fOptimalHeatMax+50 && recipeName == "Meth"){
 			hitZoneDamageToDo += 400;
 			if(destructionComp.GetHealth() <= 800 && !m_bisDestroyed){
 //				//Print("GOING FOR EXPLOSION", LogLevel.WARNING);
@@ -177,12 +177,12 @@ class ProcessCookingSimulation
 		
 //		GameSignal.SetSignalValue(BoilIndex, stoveHeat);
         // Debugging logs
-        //Print("[CookingSimulation] stoveHeat=" + stoveHeat
-//            + " | RawRisk=" + m_fRawRisk
-//            + " | BurnRisk=" + m_fBurnRisk
-//            + " | OverCookRisk=" + m_overCookedRisk
-//			+ " | HealthPoints=" + destructionComp.GetHealth()
-//            + " | Time=" + m_fCurrentTime, LogLevel.NORMAL);
+        Print("[CookingSimulation] stoveHeat=" + stoveHeat
+            + " | RawRisk=" + m_fRawRisk
+            + " | BurnRisk=" + m_fBurnRisk
+            + " | OverCookRisk=" + m_overCookedRisk
+			+ " | HealthPoints=" + destructionComp.GetHealth()
+            + " | Time=" + m_fCurrentTime, LogLevel.NORMAL);
     }
 
     void FinalizeProcess()
@@ -200,13 +200,13 @@ class ProcessCookingSimulation
         int quality = 100;
         
         if (m_fRawRisk > 0.05)
-            quality -= (int)(m_fRawRisk * 200);
+            quality -= (int)(m_fRawRisk * 100);
 
         if (m_fBurnRisk > 0.05)
-            quality -= (int)(m_fBurnRisk * 200);
+            quality -= (int)(m_fBurnRisk * 100);
 
         if (m_overCookedRisk > 0.1)
-            quality -= (int)(m_overCookedRisk * 250);
+            quality -= (int)(m_overCookedRisk * 100);
 
         if (quality < 0)
             quality = 0;

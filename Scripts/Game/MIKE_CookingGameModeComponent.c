@@ -47,16 +47,6 @@ class MIKE_CookingPlayerManagerComponent : ScriptComponent
 //			invStorage.InsertItem(item, charStorage);
 			MIKE_CookingManagerComponent newRplComp = MIKE_CookingManagerComponent.Cast(Replication.FindItem(rplCompId));
 			SCR_EntityHelper.DeleteEntityAndChildren(newRplComp.GetOwner());
-		
-
-			
-			
-			
-			
-			
-			
-			
-			
 			IEntity user = IEntity.Cast(this.GetOwner());
 		
 			if (!stoveItem || !user)

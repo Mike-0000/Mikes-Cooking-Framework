@@ -11,7 +11,7 @@ class StoveSimulation
     private float  m_fCoolingRate         = 0.02;
     private float  m_fAmbientTemperature  = 70.0;
 	IEntity ownerEntity;
-    private float  m_fMaxHeat             = 570.0;
+    private float  m_fMaxHeat             = 540.0;
     private float  m_fRate               = 0.5;    // Used if you had some approach speed logic
 	SignalsManagerComponent GameSignal;
     protected AudioHandle m_AudioHandle = AudioHandle.Invalid;
@@ -100,7 +100,7 @@ class StoveSimulation
         // 2. Heat soak logic (unchanged)
         if (m_fCurrentStoveHeat > 100.0)
         {
-            m_fHeatSoak += deltaTime * 0.00005 * m_fCurrentStoveHeat;
+            m_fHeatSoak += deltaTime * 0.000015 * m_fCurrentStoveHeat;
             if (m_fHeatSoak > 1.0)
                 m_fHeatSoak = 1.0;
         }
@@ -159,9 +159,9 @@ class StoveSimulation
             m_fCurrentStoveHeat = 0;
 		
 		
-		        //Print("[StoveSimulation] StoveHeat=" + m_fCurrentStoveHeat 
-//            + " | TargetHeat=" + targetHeat 
-//            + " | HeatSoak=" + m_fHeatSoak, LogLevel.NORMAL);
+		   Print("[StoveSimulation] StoveHeat=" + m_fCurrentStoveHeat 
+            + " | TargetHeat=" + targetHeat 
+            + " | HeatSoak=" + m_fHeatSoak, LogLevel.NORMAL);
     
 		
 		if (m_fCurrentStoveHeat<190){

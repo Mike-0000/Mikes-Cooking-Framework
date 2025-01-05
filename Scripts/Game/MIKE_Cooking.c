@@ -176,19 +176,19 @@ class MIKE_CookingManagerComponent : ScriptComponent
 
             // Decide which prefab to spawn
             ResourceName finalPrefab = bestMatch.Tier1ItemResult;
-            if (quality <= 96 && quality > 90)
+            if (quality <= 92 && quality > 85)
             {
                 finalPrefab = bestMatch.Tier2ItemResult;
             }
-            else if (quality <= 90 && quality > 83)
+            else if (quality <= 85 && quality > 75)
             {
                 finalPrefab = bestMatch.Tier3ItemResult;
             }
-            else if (quality <= 83 && quality > 58)
+            else if (quality <= 75 && quality > 50)
             {
                 finalPrefab = bestMatch.Tier4ItemResult;
             }
-            else if (quality <= 58)
+            else if (quality <= 50)
             {
                 finalPrefab = bestMatch.Tier5ItemResult;
             }
